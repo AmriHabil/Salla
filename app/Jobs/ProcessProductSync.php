@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProcessProductSync extends ProcessProductImport implements ShouldQueue
 {
@@ -28,6 +29,8 @@ class ProcessProductSync extends ProcessProductImport implements ShouldQueue
      */
     public function handle(): void
     {
+        try {
+            DB::beginTransaction();
         DB::table('products')
             ->where('id',$this->product['id'])
             ->update([
@@ -47,5 +50,12 @@ class ProcessProductSync extends ProcessProductImport implements ShouldQueue
                     )
                 ]
             );
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("File: " . $e->getFile() . " \nLine: " . $e->getLine() . " Error: " . $e->getMessage());
+            Log::error($e->getLine());
+            return ("File: " . $e->getFile() . " \nLine: " . $e->getLine() . " Error: " . $e->getMessage());
+        }
     }
 }
