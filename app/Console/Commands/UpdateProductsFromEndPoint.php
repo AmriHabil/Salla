@@ -31,7 +31,6 @@ class UpdateProductsFromEndPoint extends Command
     public function handle()
     {
         try{
-        
         DB::beginTransaction();
         $client = new \GuzzleHttp\Client();
         $response = $client->get('https://5fc7a13cf3c77600165d89a8.mockapi.io/api/v5/products');
